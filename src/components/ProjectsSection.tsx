@@ -13,12 +13,12 @@ const projects = [
   },
   {
     title: "Quizify App",
-    desc: "Interactive quiz application with sound effects, timed questions, and score tracking using React.",
-    tags: ["React", "use-sound", "JavaScript"],
+    desc: "Interactive quiz application with timed questions, real-time score tracking, and a responsive user interface. The application provides an engaging and simple quiz experience focused on smooth performance and user interaction.",
+    tags: ["React", "GoLang", "MongoDb", ],
     gradient: "from-[oklch(0.65_0.18_280)] to-[oklch(0.50_0.15_260)]",
     emoji: "🧠",
-    liveLink: "https://flashquiz-prod.onrender.com/",
-    githubLink: "https://github.com/rohitkumbhargithub/quick-quiz-react",
+    liveLink: "https://quiz-app-ykxj.onrender.com/",
+    githubLink: "https://github.com/rohitkumbhargithub/Quiz-app",
   },
   {
     title: "Movie App",

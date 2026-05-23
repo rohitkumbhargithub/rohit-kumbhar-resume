@@ -16,7 +16,7 @@ const skills = [
 ];
 
 const experiences = [
-  { role: "Assocaite Software Engineer", company: "Algorisys Technologies Pvt Ltd.", location: "Mumbai, Maharashtra", period: "Oct 2024 – Present" },
+  { role: "Associate Software Engineer", company: "Algorisys Technologies Pvt Ltd.", location: "Mumbai, Maharashtra", period: "Oct 2024 – Present" },
   { role: "Full-Stack Intern", company: "EI-System", location: "Remote", period: "Mar 2024 – Jun 2024" },
 ];
 
