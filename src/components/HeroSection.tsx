@@ -1,16 +1,20 @@
 import { useState, useEffect } from "react";
 import { Github, Linkedin, Twitter, ArrowDown } from "lucide-react";
 import heroImage from "@/assets/hero-developer-removebg-preview.png";
-
-const titles = ["Full Stack Developer", "MERN Stack Engineer", "React Developer", "Backend Developer"];
+import { usePortfolio } from "@/context/PortfolioContext";
+import EditSectionBadge from "./admin/EditSectionBadge";
 
 export default function HeroSection() {
+  const { portfolio } = usePortfolio();
+  const { hero } = portfolio;
+  const titles = hero.titles && hero.titles.length > 0 ? hero.titles : ["Full Stack Developer"];
+
   const [titleIndex, setTitleIndex] = useState(0);
   const [displayed, setDisplayed] = useState("");
   const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
-    const current = titles[titleIndex];
+    const current = titles[titleIndex % titles.length] || titles[0] || "";
     let timeout: ReturnType<typeof setTimeout>;
 
     if (!deleting && displayed.length < current.length) {
@@ -25,10 +29,12 @@ export default function HeroSection() {
     }
 
     return () => clearTimeout(timeout);
-  }, [displayed, deleting, titleIndex]);
+  }, [displayed, deleting, titleIndex, titles]);
 
   return (
     <section id="home" className="relative min-h-screen flex items-center overflow-hidden">
+      <EditSectionBadge sectionTab="hero" title="Hero Section" />
+
       {/* Animated background blobs */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-40 -right-40 w-[500px] h-[500px] bg-primary/10 rounded-full blur-3xl animate-morph" />
@@ -39,26 +45,21 @@ export default function HeroSection() {
       <div className="relative z-10 mx-auto flex max-w-6xl flex-col-reverse items-center gap-12 px-6 md:flex-row md:gap-16">
         {/* Text */}
         <div className="flex-1 animate-slide-in-left">
-          {/* <div className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/5 px-4 py-1.5 text-xs font-semibold uppercase tracking-widest text-primary backdrop-blur-sm">
-            <span className="h-2 w-2 rounded-full bg-primary animate-pulse" />
-            Available for work
-          </div> */}
           <h1 className="mt-6 text-5xl font-extrabold leading-tight text-foreground md:text-7xl">
-            Rohit<br />
-            <span className="text-gradient">Kumbhar</span>
+            {hero.firstName}<br />
+            <span className="text-gradient">{hero.lastName}</span>
           </h1>
           <div className="mt-4 h-8 text-xl font-medium text-muted-foreground md:text-2xl">
             <span className="text-gradient">{displayed}</span>
             <span className="ml-0.5 inline-block w-0.5 h-6 bg-primary animate-blink" />
           </div>
           <p className="mt-6 max-w-md text-base leading-relaxed text-muted-foreground">
-            I am eager to leverage my skills to contribute to innovative web projects
-            and deliver exceptional user experiences.
+            {hero.bio}
           </p>
 
           <div className="mt-8 flex items-center gap-4">
             <a
-              href="https://drive.google.com/file/d/1WW2zE0fO963wrPom-wa6vNHvE-y2bvxw/view?usp=sharing"
+              href={hero.cvLink}
               target="_blank"
               rel="noopener noreferrer"
               className="group relative rounded-full bg-gradient-teal px-8 py-3 text-sm font-bold text-teal-foreground shadow-lg transition-all hover:scale-105 hover:shadow-xl hover:shadow-primary/25 overflow-hidden"
@@ -76,9 +77,9 @@ export default function HeroSection() {
 
           <div className="mt-8 flex gap-4">
             {[
-              { icon: Twitter, href: "https://twitter.com", label: "Twitter" },
-              { icon: Github, href: "https://github.com", label: "GitHub" },
-              { icon: Linkedin, href: "https://linkedin.com", label: "LinkedIn" },
+              { icon: Twitter, href: hero.twitterUrl, label: "Twitter" },
+              { icon: Github, href: hero.githubUrl, label: "GitHub" },
+              { icon: Linkedin, href: hero.linkedinUrl, label: "LinkedIn" },
             ].map(({ icon: Icon, href, label }) => (
               <a
                 key={label}
@@ -103,7 +104,7 @@ export default function HeroSection() {
             <div className="absolute inset-0 rounded-full bg-gradient-teal-light opacity-15 blur-3xl scale-125 animate-morph" />
             <img
               src={heroImage}
-              alt="Rohit Kumbhar — Full Stack Developer"
+              alt={`${hero.firstName} ${hero.lastName} — Full Stack Developer`}
               width={800}
               height={800}
               className="relative z-10 w-72 md:w-96 animate-float drop-shadow-2xl"

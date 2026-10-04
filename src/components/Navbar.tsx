@@ -1,17 +1,11 @@
 import { useState, useEffect } from "react";
 import ThemeToggle from "./ThemeToggle";
-
-const navLinks = [
-  { label: "Home", href: "#home" },
-  { label: "About", href: "#about" },
-  { label: "Services", href: "#services" },
-  { label: "Projects", href: "#projects" },
-  { label: "Contact", href: "#contact" },
-];
+import { usePortfolio } from "@/context/PortfolioContext";
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const { portfolio } = usePortfolio();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 50);
@@ -19,12 +13,38 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  const visibility = portfolio.visibility || {
+    hero: true,
+    about: true,
+    services: true,
+    projects: true,
+    footer: true,
+  };
+
+  const dynamicLinks: { label: string; href: string }[] = [];
+  if (visibility.hero !== false) dynamicLinks.push({ label: "Home", href: "#home" });
+  if (visibility.about !== false) dynamicLinks.push({ label: "About", href: "#about" });
+  if (visibility.services !== false) dynamicLinks.push({ label: "Services", href: "#services" });
+  if (visibility.projects !== false) dynamicLinks.push({ label: "Projects", href: "#projects" });
+
+  // Add custom section links
+  if (portfolio.customSections && portfolio.customSections.length > 0) {
+    portfolio.customSections.forEach((sec) => {
+      if (sec.visible !== false) {
+        dynamicLinks.push({
+          label: sec.title,
+          href: `#${sec.slug || `section-${sec.id}`}`,
+        });
+      }
+    });
+  }
+
+  if (visibility.footer !== false) dynamicLinks.push({ label: "Contact", href: "#contact" });
+
   return (
     <nav
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        scrolled
-          ? "glass-card shadow-lg py-3"
-          : "bg-transparent py-5"
+        scrolled ? "glass-card shadow-lg py-3" : "bg-transparent py-5"
       }`}
     >
       <div className="mx-auto flex max-w-6xl items-center justify-between px-6">
@@ -34,7 +54,7 @@ export default function Navbar() {
 
         {/* Desktop */}
         <div className="hidden items-center gap-6 md:flex">
-          {navLinks.map((link) => (
+          {dynamicLinks.map((link) => (
             <a
               key={link.href}
               href={link.href}
@@ -60,16 +80,28 @@ export default function Navbar() {
             onClick={() => setMobileOpen(!mobileOpen)}
             aria-label="Toggle menu"
           >
-            <span className={`block h-0.5 w-6 bg-foreground transition-transform ${mobileOpen ? "translate-y-2 rotate-45" : ""}`} />
-            <span className={`block h-0.5 w-6 bg-foreground transition-opacity ${mobileOpen ? "opacity-0" : ""}`} />
-            <span className={`block h-0.5 w-6 bg-foreground transition-transform ${mobileOpen ? "-translate-y-2 -rotate-45" : ""}`} />
+            <span
+              className={`block h-0.5 w-6 bg-foreground transition-transform ${
+                mobileOpen ? "translate-y-2 rotate-45" : ""
+              }`}
+            />
+            <span
+              className={`block h-0.5 w-6 bg-foreground transition-opacity ${
+                mobileOpen ? "opacity-0" : ""
+              }`}
+            />
+            <span
+              className={`block h-0.5 w-6 bg-foreground transition-transform ${
+                mobileOpen ? "-translate-y-2 -rotate-45" : ""
+              }`}
+            />
           </button>
         </div>
       </div>
 
       {mobileOpen && (
         <div className="glass-card mt-2 mx-4 rounded-2xl p-6 md:hidden animate-slide-up">
-          {navLinks.map((link) => (
+          {dynamicLinks.map((link) => (
             <a
               key={link.href}
               href={link.href}

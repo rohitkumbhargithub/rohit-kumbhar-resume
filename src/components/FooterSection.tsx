@@ -1,9 +1,16 @@
 import { Github, Linkedin, Twitter, Mail, MapPin, Heart, ArrowUp } from "lucide-react";
 import ScrollReveal from "./ScrollReveal";
+import { usePortfolio } from "@/context/PortfolioContext";
+import EditSectionBadge from "./admin/EditSectionBadge";
 
 export default function FooterSection() {
+  const { portfolio } = usePortfolio();
+  const { footer } = portfolio;
+
   return (
     <footer id="contact" className="relative overflow-hidden bg-card border-t border-border">
+      <EditSectionBadge sectionTab="footer" title="Footer & Contact" />
+
       {/* Gradient top accent */}
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary to-transparent" />
 
@@ -13,8 +20,7 @@ export default function FooterSection() {
             <div>
               <h3 className="text-2xl font-extrabold text-gradient">Portfolio</h3>
               <p className="mt-4 text-sm text-muted-foreground leading-relaxed">
-                Full Stack Developer passionate about building scalable web applications
-                and delivering exceptional user experiences.
+                {footer.tagline}
               </p>
             </div>
             <div>
@@ -34,17 +40,21 @@ export default function FooterSection() {
             <div>
               <h4 className="font-bold text-lg text-foreground">Get in Touch</h4>
               <div className="mt-4 space-y-3 text-sm text-muted-foreground">
-                <p className="flex items-center gap-2"><Mail size={14} className="text-primary" /> rohitkumbhar956@gmail.com</p>
-                <p className="flex items-center gap-2"><MapPin size={14} className="text-primary" /> Kolhapur, Maharashtra</p>
+                <p className="flex items-center gap-2">
+                  <Mail size={14} className="text-primary" /> {footer.email}
+                </p>
+                <p className="flex items-center gap-2">
+                  <MapPin size={14} className="text-primary" /> {footer.location}
+                </p>
               </div>
               <div className="mt-6 flex gap-3">
                 {[
-                  { icon: Twitter, href: "https://twitter.com" },
-                  { icon: Github, href: "https://github.com" },
-                  { icon: Linkedin, href: "https://linkedin.com" },
-                ].map(({ icon: Icon, href }) => (
+                  { icon: Twitter, href: footer.twitterUrl },
+                  { icon: Github, href: footer.githubUrl },
+                  { icon: Linkedin, href: footer.linkedinUrl },
+                ].map(({ icon: Icon, href }, idx) => (
                   <a
-                    key={href}
+                    key={idx}
                     href={href}
                     target="_blank"
                     rel="noopener noreferrer"
@@ -60,7 +70,7 @@ export default function FooterSection() {
 
         <div className="mt-12 flex items-center justify-between border-t border-border pt-6">
           <p className="flex items-center gap-1 text-xs text-muted-foreground">
-            Made with <Heart size={12} className="text-primary" /> by Rohit Kumbhar &copy; 2025
+            {footer.copyrightText}
           </p>
           <a
             href="#home"

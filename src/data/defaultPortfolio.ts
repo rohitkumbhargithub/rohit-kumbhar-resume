@@ -1,0 +1,166 @@
+import { PortfolioData } from "@/types/portfolio";
+
+export const defaultPortfolioData: PortfolioData = {
+  hero: {
+    firstName: "Rohit",
+    lastName: "Kumbhar",
+    titles: [
+      "Full Stack Developer",
+      "MERN Stack Engineer",
+      "React Developer",
+      "Backend Developer",
+    ],
+    bio: "I am eager to leverage my skills to contribute to innovative web projects and deliver exceptional user experiences.",
+    cvLink: "https://drive.google.com/file/d/1WW2zE0fO963wrPom-wa6vNHvE-y2bvxw/view?usp=sharing",
+    twitterUrl: "https://twitter.com",
+    githubUrl: "https://github.com/rohitkumbhargithub",
+    linkedinUrl: "https://linkedin.com",
+  },
+  about: {
+    heading: "About",
+    highlightedText: "Me",
+    bio: "Passionate developer skilled in modern web technologies, specializing in building scalable solutions and delivering exceptional user experiences.",
+    skills: [
+      {
+        id: "skill-1",
+        category: "Frontend",
+        items: ["HTML", "CSS", "JavaScript", "React.JS"],
+      },
+      {
+        id: "skill-2",
+        category: "Backend",
+        items: ["Node.js", "Express.js", "Remix.js"],
+      },
+      {
+        id: "skill-3",
+        category: "Database",
+        items: ["MySQL", "MongoDB", "PostgreSQL", "Prisma ORM"],
+      },
+    ],
+    experiences: [
+      {
+        id: "exp-1",
+        role: "Associate Software Engineer",
+        company: "Algorisys Technologies Pvt Ltd.",
+        location: "Mumbai, Maharashtra",
+        period: "Oct 2024 – Present",
+      },
+      {
+        id: "exp-2",
+        role: "Full-Stack Intern",
+        company: "EI-System",
+        location: "Remote",
+        period: "Mar 2024 – Jun 2024",
+      },
+    ],
+    educations: [
+      {
+        id: "edu-1",
+        degree: "MCA",
+        institution: "D.Y. Patil Agriculture & Technical University, Kolhapur",
+        year: "2021–2023",
+      },
+      {
+        id: "edu-2",
+        degree: "B.Sc.",
+        institution: "Shivaji University, Kolhapur",
+        year: "2018–2021",
+      },
+    ],
+    courses: [
+      {
+        id: "course-1",
+        name: "Full Stack Web Development",
+        provider: "Coding Ninjas",
+      },
+      {
+        id: "course-2",
+        name: "Python Fundamentals",
+        provider: "Infosys Springboard",
+      },
+    ],
+  },
+  services: [
+    {
+      id: "srv-1",
+      title: "Frontend Development",
+      desc: "Develop user-facing features using HTML, CSS, and JavaScript with responsive and adaptive design.",
+      gradient: "from-[oklch(0.72_0.17_185)] to-[oklch(0.60_0.15_200)]",
+    },
+    {
+      id: "srv-2",
+      title: "Backend Development",
+      desc: "Develop and maintain server-side applications using Node.js and Express.js with RESTful APIs.",
+      gradient: "from-[oklch(0.65_0.18_280)] to-[oklch(0.55_0.15_260)]",
+    },
+    {
+      id: "srv-3",
+      title: "MERN Development",
+      desc: "Full-stack web applications using the MERN stack with React.js interfaces and MongoDB databases.",
+      gradient: "from-[oklch(0.70_0.18_30)] to-[oklch(0.60_0.16_15)]",
+    },
+  ],
+  projects: [
+    {
+      id: "proj-1",
+      title: "SendChat App",
+      desc: "Real-time chat web application built with React JS, Vite, and Node JS. Styled with Tailwind CSS.",
+      tags: ["React", "Node.js", "Tailwind CSS", "Vite"],
+      emoji: "💬",
+      liveLink: "https://send-chat-prod.onrender.com",
+      githubLink: "https://github.com/rohitkumbhargithub/mern-stack-app",
+      gradient: "from-[oklch(0.72_0.17_185)] to-[oklch(0.55_0.15_200)]",
+    },
+    {
+      id: "proj-2",
+      title: "Quizify App",
+      desc: "Interactive quiz application with timed questions, real-time score tracking, and a responsive user interface. The application provides an engaging and simple quiz experience focused on smooth performance and user interaction.",
+      tags: ["React", "GoLang", "MongoDb"],
+      emoji: "🧠",
+      liveLink: "https://quiz-app-ykxj.onrender.com/",
+      githubLink: "https://github.com/rohitkumbhargithub/Quiz-app",
+      gradient: "from-[oklch(0.65_0.18_280)] to-[oklch(0.50_0.15_260)]",
+    },
+    {
+      id: "proj-3",
+      title: "Movie App",
+      desc: "Movie discovery website integrated with The Movie DB API to fetch and display trending movies.",
+      tags: ["React", "TMDB API", "CSS"],
+      emoji: "🎬",
+      liveLink: "https://movie-app-five-green.vercel.app/",
+      githubLink: "https://github.com/rohitkumbhargithub/Movie-App",
+      gradient: "from-[oklch(0.70_0.18_30)] to-[oklch(0.55_0.16_15)]",
+    },
+    {
+      id: "proj-4",
+      title: "Project Management App",
+      desc: "Project management tool built with Remix, PostgreSQL, and Prisma ORM for team collaboration.",
+      tags: ["Remix", "PostgreSQL", "Prisma"],
+      emoji: "📋",
+      liveLink: "https://remix-jira-clone.onrender.com/",
+      githubLink: "https://github.com/rohitkumbhargithub/remix-jira-clone",
+      gradient: "from-[oklch(0.65_0.15_140)] to-[oklch(0.50_0.12_160)]",
+    },
+  ],
+  footer: {
+    tagline: "Full Stack Developer passionate about building scalable web applications and delivering exceptional user experiences.",
+    email: "rohitkumbhar956@gmail.com",
+    location: "Kolhapur, Maharashtra",
+    twitterUrl: "https://twitter.com",
+    githubUrl: "https://github.com/rohitkumbhargithub",
+    linkedinUrl: "https://linkedin.com",
+    copyrightText: "Made with ❤️ by Rohit Kumbhar © 2025",
+  },
+  customSections: [],
+  visibility: {
+    hero: true,
+    about: true,
+    services: true,
+    projects: true,
+    footer: true,
+  },
+  theme: {
+    preset: "teal",
+    mode: "system",
+  },
+};
