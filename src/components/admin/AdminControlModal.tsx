@@ -23,6 +23,8 @@ import {
   EyeOff,
   Sparkles,
   LayoutGrid,
+  Database,
+  Cloud,
 } from "lucide-react";
 import { usePortfolio } from "@/context/PortfolioContext";
 import {
@@ -59,6 +61,8 @@ export default function AdminControlModal() {
     activeSectionTab,
     changePasscode,
     lockAdmin,
+    syncStatus,
+    saveToMongoDB,
   } = usePortfolio();
 
   const [activeTab, setActiveTab] = useState(activeSectionTab || "hero");
@@ -178,6 +182,18 @@ export default function AdminControlModal() {
           </div>
 
           <div className="flex items-center gap-2">
+            {syncStatus === "synced" && (
+              <span className="hidden sm:inline-flex items-center gap-1.5 text-xs text-emerald-400 font-medium px-2.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                MongoDB Atlas Synced
+              </span>
+            )}
+            {syncStatus === "saving" && (
+              <span className="hidden sm:inline-flex items-center gap-1.5 text-xs text-amber-400 font-medium px-2.5 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/20">
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping" />
+                Syncing to MongoDB...
+              </span>
+            )}
             {showSavedNotification && (
               <span className="flex items-center gap-1.5 text-xs text-emerald-500 font-medium px-3 py-1 bg-emerald-500/10 rounded-full border border-emerald-500/20 animate-pulse">
                 <Check size={14} /> Saved!
@@ -1641,6 +1657,32 @@ export default function AdminControlModal() {
                       Update Passcode
                     </button>
                   </form>
+                </div>
+
+                {/* MongoDB Atlas Sync */}
+                <div className="p-5 rounded-2xl border border-border bg-card/60 space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h4 className="text-sm font-semibold text-foreground flex items-center gap-2">
+                        <Database size={16} className="text-primary" />
+                        MongoDB Atlas Cloud Database
+                      </h4>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        Your edits are connected to MongoDB Atlas. Changes automatically sync to your remote database for all visitors.
+                      </p>
+                    </div>
+                    <button
+                      onClick={async () => {
+                        const success = await saveToMongoDB();
+                        if (success) {
+                          triggerSaveNotice();
+                        }
+                      }}
+                      className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-gradient-teal text-teal-foreground text-xs font-bold shadow-md hover:scale-105 transition-all"
+                    >
+                      <Cloud size={14} /> Sync Now to MongoDB
+                    </button>
+                  </div>
                 </div>
 
                 {/* Backup & Export */}

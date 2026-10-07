@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useState, useEffect, useRef } from "react";
 import {
   PortfolioData,
   HeroData,
@@ -43,6 +43,9 @@ interface PortfolioContextType {
   verifyPasscode: (code: string) => boolean;
   changePasscode: (oldCode: string, newCode: string) => boolean;
   lockAdmin: () => void;
+  // MongoDB sync features
+  syncStatus: "synced" | "saving" | "error" | "offline";
+  saveToMongoDB: (dataToSave?: PortfolioData) => Promise<boolean>;
 }
 
 const STORAGE_KEY = "rohit_portfolio_custom_data_v1";
@@ -57,7 +60,6 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
         const parsed = JSON.parse(saved);
-        // Deep merge with defaults to ensure any missing fields exist
         return {
           hero: { ...defaultPortfolioData.hero, ...parsed.hero },
           about: { ...defaultPortfolioData.about, ...parsed.about },
@@ -79,6 +81,43 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
   const [isEditMode, setIsEditMode] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeSectionTab, setActiveSectionTab] = useState("hero");
+  const [syncStatus, setSyncStatus] = useState<"synced" | "saving" | "error" | "offline">("synced");
+
+  const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const isInitialMount = useRef(true);
+
+  // Fetch initial portfolio data from MongoDB on mount
+  useEffect(() => {
+    async function fetchFromMongoDB() {
+      try {
+        const res = await fetch("/api/portfolio");
+        if (res.ok) {
+          const json = await res.json();
+          if (json.exists && json.data) {
+            const dbData = json.data;
+            const merged: PortfolioData = {
+              hero: { ...defaultPortfolioData.hero, ...dbData.hero },
+              about: { ...defaultPortfolioData.about, ...dbData.about },
+              services: dbData.services || defaultPortfolioData.services,
+              projects: dbData.projects || defaultPortfolioData.projects,
+              footer: { ...defaultPortfolioData.footer, ...dbData.footer },
+              customSections: dbData.customSections || [],
+              visibility: { ...defaultPortfolioData.visibility, ...(dbData.visibility || {}) },
+              theme: { ...defaultPortfolioData.theme, ...(dbData.theme || {}) },
+            };
+            setPortfolio(merged);
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
+            setSyncStatus("synced");
+          }
+        }
+      } catch (err) {
+        console.warn("Unable to reach backend /api/portfolio, using cached storage:", err);
+        setSyncStatus("offline");
+      }
+    }
+
+    fetchFromMongoDB();
+  }, []);
 
   // Dynamically apply current theme preset
   useEffect(() => {
@@ -87,14 +126,60 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
     }
   }, [portfolio.theme?.preset]);
 
-  // Save changes to localStorage whenever portfolio state changes
+  // Save changes to localStorage & sync to MongoDB
   useEffect(() => {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(portfolio));
     } catch (e) {
       console.error("Error saving portfolio to localStorage:", e);
     }
-  }, [portfolio]);
+
+    // Skip auto-sync on very first render
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      return;
+    }
+
+    // Only auto-sync to MongoDB if admin is active or editing
+    if (isAdminUnlocked) {
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
+      }
+      setSyncStatus("saving");
+      saveTimeoutRef.current = setTimeout(() => {
+        saveToMongoDB(portfolio);
+      }, 1200);
+    }
+  }, [portfolio, isAdminUnlocked]);
+
+  const saveToMongoDB = async (dataToSave?: PortfolioData): Promise<boolean> => {
+    const payload = dataToSave || portfolio;
+    const currentPass = localStorage.getItem(PASSCODE_KEY) || DEFAULT_PASSCODE;
+    try {
+      setSyncStatus("saving");
+      const res = await fetch("/api/portfolio", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          data: payload,
+          passcode: currentPass,
+        }),
+      });
+
+      if (res.ok) {
+        setSyncStatus("synced");
+        return true;
+      } else {
+        console.error("MongoDB save returned error status:", res.status);
+        setSyncStatus("error");
+        return false;
+      }
+    } catch (err) {
+      console.error("MongoDB save request failed:", err);
+      setSyncStatus("offline");
+      return false;
+    }
+  };
 
   const updatePortfolio = (updater: (prev: PortfolioData) => PortfolioData) => {
     setPortfolio((prev) => updater(prev));
@@ -183,6 +268,7 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
       console.error(e);
     }
     applyThemePreset("teal");
+    saveToMongoDB(defaultPortfolioData);
   };
 
   const exportPortfolioJSON = () => {
@@ -195,7 +281,7 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
       if (!parsed.hero || !parsed.about || !parsed.services || !parsed.projects) {
         return { success: false, message: "Invalid JSON format: missing required portfolio sections." };
       }
-      setPortfolio({
+      const newPortfolio: PortfolioData = {
         hero: { ...defaultPortfolioData.hero, ...parsed.hero },
         about: { ...defaultPortfolioData.about, ...parsed.about },
         services: parsed.services,
@@ -204,11 +290,13 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
         customSections: parsed.customSections || [],
         visibility: { ...defaultPortfolioData.visibility, ...(parsed.visibility || {}) },
         theme: { ...defaultPortfolioData.theme, ...(parsed.theme || {}) },
-      });
+      };
+      setPortfolio(newPortfolio);
       if (parsed.theme?.preset) {
         applyThemePreset(parsed.theme.preset);
       }
-      return { success: true, message: "Portfolio data successfully imported!" };
+      saveToMongoDB(newPortfolio);
+      return { success: true, message: "Portfolio data successfully imported and synced to MongoDB!" };
     } catch (e) {
       return { success: false, message: "Invalid JSON syntax. Please verify." };
     }
@@ -233,6 +321,14 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
       return false;
     }
     localStorage.setItem(PASSCODE_KEY, newCode.trim());
+
+    // Sync new passcode to backend
+    fetch("/api/portfolio/passcode", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ currentPasscode: oldCode, newPasscode: newCode.trim() }),
+    }).catch(console.error);
+
     return true;
   };
 
@@ -278,6 +374,8 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
         verifyPasscode,
         changePasscode,
         lockAdmin,
+        syncStatus,
+        saveToMongoDB,
       }}
     >
       {children}
